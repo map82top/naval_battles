@@ -1,0 +1,33 @@
+.button {
+  display: inline-block;
+  text-transform: uppercase;
+  background-image: linear-gradient(to top, #b82100, #fd6300);
+  color: white;
+  border-radius: 1.5px;
+  border: none;
+  font-weight: 600;
+  height: 40px;
+  width: 200px;
+  font-size: 16px;
+  margin-right: 5px;
+
+  &--disabled {
+    background: rgba(255, 255, 255, 0.3);
+    display: inline-block;
+    text-transform: uppercase;
+    color: white;
+    border-radius: 1.5px;
+    border: none;
+    font-weight: 600;
+    height: 40px;
+    width: 200px;
+    font-size: 16px;
+    margin-right: 5px;
+  }
+
+  &:hover {
+    background-image: none;
+    background-color: #fd6300;
+    color: white;
+  }
+}

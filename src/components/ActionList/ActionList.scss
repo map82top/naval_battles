@@ -1,0 +1,37 @@
+.action_list {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  overflow: visible;
+  min-width: 80%;
+  max-height: 100%;
+
+ .card_wrapper {
+    width: 6%;
+    overflow: visible;
+ }
+
+  .card {
+    width: 10vw;
+    height: 25vh;
+
+    &:hover {
+      margin-bottom: 70%;
+      transition-property: margin-bottom;
+      transition: 0.08s;
+    }
+  }
+
+  &::-webkit-scrollbar{
+    display: none;
+  }
+}
+
+.action_dragging {
+  transform: none !important;
+  margin-left: 0 !important;
+
+  .card {
+    width: 10.3vw !important;
+  }
+}

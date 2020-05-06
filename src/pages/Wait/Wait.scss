@@ -1,0 +1,63 @@
+.wait {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: Exo2Thin, "Samyak Gujarati", sans-serif;
+  color: white;
+
+  &__icon {
+    font-size: 25vh;
+    color: rgba(255, 255, 255, 0.4) !important;
+    margin-bottom: 5%;
+    font-weight: 700;
+  }
+
+  &__text {
+    margin-bottom: 15%;
+    font-size: 3vh;
+    content: "Ожидание противника";
+
+    &:after {
+      animation: dots 2.8s linear infinite;
+      display: block;
+      content: "Ожидание противника";
+    }
+  }
+
+  &__button {
+    position: absolute;
+    bottom: 3%;
+    font-size: 18px;
+    height: 50px;
+    width: 350px;
+    font-weight: 900;
+  }
+
+  @keyframes changeLetter {
+    0% {
+      content: "A";
+    }
+    50% {
+      color: white;
+    }
+    100% {
+      content: "B";
+    }
+  }
+}
+
+@keyframes dots {
+  0%   {
+    content: "Ожидание противника";
+  }
+  25%  {
+    content: "Ожидание противника.";
+  }
+  50%  {
+    content: "Ожидание противника..";
+  }
+  100% {
+    content: "Ожидание противника...";
+  }
+}

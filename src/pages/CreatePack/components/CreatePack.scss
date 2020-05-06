@@ -1,0 +1,70 @@
+.create_pack {
+  font-family: Exo2Thin, sans-serif;
+
+  &__all_cards {
+    width: 100vw;
+    height: 35vh;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+
+  }
+
+  &__my_cards {
+    width: 100vw;
+    height: 35vh;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+
+  }
+
+  &__footer{
+    height: 13vh;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    margin-top: 6%;
+    margin-bottom: 2%;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+
+    &__input {
+      width: 20vw !important;
+      margin-left: 3% !important;
+      margin-bottom: 0 !important;
+
+      * {
+        background: transparent !important;
+        font-weight: 600;
+      }
+
+      .ant-form-item-control-input {
+        * {
+          color: white;
+
+          &::placeholder {
+            color: white;
+            font-weight: 300;
+            opacity: 1;
+          }
+        }
+      }
+      .ant-form-item-explain {
+        font-weight: 700 !important;
+      }
+    }
+
+    &__button {
+      width: 10vw;
+      height: 4vh;
+      margin-right: 4%;
+      margin-bottom: 1.1%;
+    }
+
+    &__counter {
+      margin: 5px 4% 1.4% 5px;
+    }
+
+  }
+}

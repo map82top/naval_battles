@@ -1,0 +1,106 @@
+.battle {
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100vh;
+
+  &__archer {
+    svg {
+      pointer-events: none;
+    }
+  }
+
+  &__game_field {
+    width: 100vw;
+    height: inherit;
+    display: grid;
+    grid-template-columns: 50%  50%;
+    grid-template-rows: 13vh auto 6% auto 15vh;
+
+    &__border {
+      grid-row: 3;
+      grid-column-start: 1;
+      grid-column-end: 3;
+      width: 95%;
+      text-align: center;
+      margin: auto;
+      vertical-align: center;
+
+      &__line {
+        background-image: linear-gradient(to right, rgba(255,255,255,0) 50%, white 50%);
+        background-position: top;
+        background-size: 15% 15%;
+        background-repeat: repeat-x;
+      }
+    }
+
+    &__enemy_hands_actions {
+      width: 100%;
+      height: 12vh;
+      transform: scale(1, -1);
+      position: relative;
+      top: -10vh;
+      right: 30%;
+      left: 30%;
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row: 1;
+    }
+
+    &__hands_actions {
+      width: 100%;
+      height: 15vh;
+      position: relative;
+      bottom: -8vh;
+      right: 30%;
+      left: 30%;
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row: 5;
+    }
+
+    &__ships {
+      margin-left: 3%;
+
+      &__row {
+        height: 11vh;
+      }
+    }
+
+    &__ships_enemy {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    &__ships_my {
+      grid-column: 1;
+      grid-row: 4;
+    }
+
+    &__actions_enemy {
+      grid-column: 2;
+      grid-row: 2;
+      height: 20vh;
+    }
+
+    &__actions_my {
+      grid-column: 2;
+      grid-row: 4;
+      height: 20vh;
+    }
+  }
+
+  &__sub_field {
+    width: 9.5vw;
+    height: inherit;
+  }
+}
+
+.ships_card {
+  width: 7.6vw;
+}
+
+.actions_card {
+  width: 6.5vw;
+}

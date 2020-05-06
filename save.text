@@ -1,0 +1,26 @@
+.card_wrapper {
+  //margin: 0.3%
+  width: auto;
+  height: inherit;
+}
+.card {
+  width: 100%;
+  height: inherit;
+
+  &__image {
+    max-width: 100%;
+    height: inherit;
+  }
+
+  &__modal {
+    * {
+      background: rgba(255, 255, 255, 0) !important;
+      color: rgba(0, 0, 0, 0);
+    }
+
+    &__image {
+      width: 100%;
+      height: auto;
+    }
+  }
+}

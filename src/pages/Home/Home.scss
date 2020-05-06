@@ -1,0 +1,30 @@
+.home {
+  height: inherit;
+
+  &__top {
+    display: flex;
+    flex-direction: row;;
+    justify-content: flex-end;
+    height: 10%;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 85%;
+
+    &__form {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+
+      &__button {
+        height: 45px;
+        width: 350px;
+        margin-right: 10%;
+      }
+    }
+  }
+}

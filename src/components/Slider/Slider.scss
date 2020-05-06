@@ -1,0 +1,19 @@
+.slider {
+  width: inherit;
+  height: min-content;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  overflow: auto;
+
+  &__button {
+    font-size: 80px;
+    color: white!important;
+    opacity: 0.5;
+
+    &--active {
+      opacity: 1;
+    }
+  }
+}
