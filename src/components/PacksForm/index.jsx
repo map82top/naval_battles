@@ -1,17 +1,26 @@
 import React, { useEffect } from "react";
-import { Button, Login, PacksContainer, Background, Glass } from "components";
+import { Button, Login, PacksContainer, Background, Glass, Info } from "components";
 import "./PacksForm.scss"
-import { useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import { imageApi } from "utils/api";
 import { packsActions } from "redux/actions";
 import { withRouter } from 'react-router-dom'
 
 
-const Packs = ({isSelect, name, description, packs, fetchAllUserPacks}) => {
-    const history =  useHistory();
+const Packs = props => {
+    const {
+        isSelect,
+        name,
+        description,
+        packs,
+        fetchAllUserPacks,
+        title_info,
+        text_info,
+        timeout_info
+    } = props
+
     const onBack = () => {
-        history.push("/home");
+        props.history.push("/home");
     }
     useEffect(() => {
         fetchAllUserPacks();
@@ -22,6 +31,13 @@ const Packs = ({isSelect, name, description, packs, fetchAllUserPacks}) => {
             className="packs"
             image={imageApi.getImage("pack_background.jpg")}
         >
+            <Info
+                className="packs__info"
+                direction="RIGHT"
+                timeout={timeout_info}
+                title={title_info}
+                text={text_info} />
+
                 <div className="packs__top">
                     <Login
                         theme="dark"
@@ -36,6 +52,7 @@ const Packs = ({isSelect, name, description, packs, fetchAllUserPacks}) => {
                         name={name}
                         description={description}
                         packs={packs}
+                        history={props.history}
                     />
                 </Glass>
                 <div className="packs__bottom">

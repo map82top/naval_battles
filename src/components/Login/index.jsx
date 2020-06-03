@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { UserOutlined } from "@ant-design/icons";
 import {Menu } from "antd";
 import "./Login.scss";
@@ -9,7 +9,7 @@ import { store } from "redux/store";
 const { SubMenu, Item } = Menu;
 
 
-const Login = ( { fetchUserData, data, theme, className } ) => {
+const Login = ( { data, theme, className } ) => {
     const onExit = () => {
         store.dispatch(userActions.fetchUserLogout());
     }

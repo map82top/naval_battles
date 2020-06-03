@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from "react-redux";
-import { Route, Switch, Redirect } from "react-router-dom";
-import {Auth, Home, Packs, SelectPack, Wait, CreatePack, Test, Battle} from "pages";
+import { Route, Switch, Redirect, withRouter  } from "react-router-dom";
+import {Auth, Home, Packs, SelectPack, Wait, CreatePack, Battle} from "pages";
 
 const App = props => {
     const { isAuth } = props;
@@ -29,36 +29,21 @@ const App = props => {
                   render={() => (!isAuth ? <Auth /> : <Redirect to="/home" /> )}
               />
               <Route
-                  path="/wait"
+                  path="/queue"
                   render={() => (isAuth ? <Wait /> : <Redirect to="/signin" /> )}
               />
-              {/*<PrivateRoute*/}
-              {/*    path="/home"*/}
-              {/*    component={Home}*/}
-              {/*/>*/}
-              {/*<Route*/}
-              {/*    path="/packs"*/}
-              {/*    component={Packs}*/}
-              {/*/>*/}
-              {/*<Route*/}
-              {/*    path="/select_pack"*/}
-              {/*    component={SelectPack}*/}
-              {/*/>*/}
-              {/*<Route*/}
-              {/*    path="/create_pack"*/}
-              {/*    component={ CreatePack }*/}
-              {/*/>*/}
-              {/*<Route*/}
-              {/*    path="/test"*/}
-              {/*    component={ Test }*/}
-              {/*/>*/}
               <Route
                   path="/battle"
-                  component={ Battle }
+                  render={() => (isAuth ? <Battle /> : <Redirect to="/signin" /> )}
+              />
+              {/*если писать это в начале, то другие path работать не будут*/}
+              <Route
+                  path="/"
+                  render={() => (isAuth ? <Redirect to="/home" /> : <Redirect to="/signin" /> )}
               />
           </Switch>
       </div>
   )
 };
 
-export default connect(({ user }) => ({ isAuth: user.isAuth }))(App);
+export default withRouter(connect(({ user }) => ({ isAuth: user.isAuth }))(App));

@@ -1,24 +1,51 @@
 import React, {useState} from "react";
 import "./Pack.scss";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons/lib/icons";
-import { IconButton } from "components";
 import { store } from "redux/store";
-import {Button, Modal} from "antd";
+import {Button } from "antd";
 import cn from "classnames";
 import { imageApi  } from "utils/api";
 import { packsActions } from "redux/actions";
 import {openNotification} from "utils/helpers";
 
-const Pack = ({pack, onClick}) => {
+export const EMPTY = "empty"
+export const SELECT = "select"
+export const EDIT = "edit"
+
+const Pack = ({pack, type, onClick, history}) => {
     const [statePack, setPack] = useState(pack ? pack : {})
-    const notEmpty = () =>{
-        return statePack.country && statePack.name
+
+    const notEmpty = () => {
+        return type !== EMPTY
     }
+
+    const isSelect = () => {
+        return type === SELECT
+    }
+    const isEdit = () => {
+        return type === EDIT
+    }
+
+    const handlerClick = () => {
+        onClick && onClick()
+
+        if(isSelect()) {
+            history.push({
+                pathname: "/queue",
+                state: statePack
+            })
+        } else if(isEdit()) {
+            history.replace({
+                pathname: "/create_pack",
+                state: statePack
+            })
+        }
+    }
+
     const onDelete = e => {
         store
             .dispatch(packsActions.deletePack({_id: statePack._id}))
             .then((response) => {
-                console.log(response)
                 openNotification({
                     title: 'Отлично!',
                     text: response.data.description ? response.data.description : 'Колода удалена!',
@@ -37,7 +64,7 @@ const Pack = ({pack, onClick}) => {
     return (
             <div className="pack">
                 <div
-                    onClick={onClick}
+                    onClick={handlerClick}
                     className={cn("pack__content", { "pack__content--filled": (notEmpty()), "pack__content--not_filled": !notEmpty() })}
                     style={{backgroundImage: `url(${mapCountry(statePack.country)}`}}
                 >
@@ -48,16 +75,19 @@ const Pack = ({pack, onClick}) => {
                     )}
                 </div>
                 <div className="pack__footer">
-                    { notEmpty() ? (
+                    { notEmpty() ? ('') : (
+                            <span className="pack__footer__description">Нажмите, чтобы создать</span>
+                        )
+                    }
+                    {
+                        isEdit() ? (
                             <Button
                                 ghost
                                 icon={<DeleteOutlined />}
                                 size="large"
                                 onClick={ onDelete }
                             />
-                        ) : (
-                            <span className="pack__footer__description">Нажмите, чтобы создать</span>
-                        )
+                        ) : ('')
                     }
                 </div>
             </div>

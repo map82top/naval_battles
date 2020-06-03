@@ -5,21 +5,69 @@
 .card {
   width: 15vw;
   height: auto;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &__damage {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    width: 100%;
+    transition: opacity 0.5s ease-in-out;
+  }
+
+  &--blocked {
+    border: #ff0000 0.25vh solid;
+  }
 
   &__image {
     width: inherit;
     height: inherit;
   }
 
+  &__hp {
+    position: absolute;
+    top: 10.4%;
+    left: 85.2%;
+    width: 100%;
+    color: #eeeeee;
+    font-size: 1.4vh;
+    font-weight: 700;
+    letter-spacing: 0.06vw;
+    text-shadow: black 0 0 0.4vh;
+  }
+
   &__modal {
+    position: relative;
+    margin-top: 20vh;
     * {
       background: rgba(255, 255, 255, 0) !important;
       color: rgba(0, 0, 0, 0);
     }
 
-    &__image {
-      width: inherit;
-      height: 24vh;
+    &__content {
+      position: relative;
+
+      &__image {
+        width: inherit;
+        height: 24vh;
+      }
+
+      &__hp {
+        position: absolute;
+        top: 10.4%;
+        left: 21.5%;
+        width: 100%;
+        color: #eeeeee;
+        font-size: 2.5vh;
+        font-weight: 700;
+        text-shadow: black 0 0 0.2vh;
+      }
     }
   }
+}
+
+
+.ant-modal-wrap {
+  overflow: hidden !important;
 }

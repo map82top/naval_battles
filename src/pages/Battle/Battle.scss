@@ -2,8 +2,14 @@
   width: 100vw;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   height: 100vh;
+
+  &__info {
+    position: absolute;
+    top: 3vh;
+    right: 1.5vw;
+  }
 
   &__archer {
     svg {
@@ -12,11 +18,19 @@
   }
 
   &__game_field {
-    width: 100vw;
+    width: 89.5vw;
     height: inherit;
     display: grid;
     grid-template-columns: 50%  50%;
     grid-template-rows: 13vh auto 6% auto 15vh;
+
+    &__placing_ships {
+      grid-row: 5;
+      grid-column-start: 1;
+      grid-column-end: 3;
+      overflow: auto;
+      margin-top: 1%;
+    }
 
     &__border {
       grid-row: 3;
@@ -26,6 +40,29 @@
       text-align: center;
       margin: auto;
       vertical-align: center;
+      position: relative;
+
+      &__support_info {
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-size: 3.2vh;
+        position: absolute;
+        font-weight: 600;
+        left: 10%;
+        text-transform: uppercase;
+        letter-spacing: 0.12vw;
+        transition: opacity 1s ease-in-out;
+        z-index: 99999;
+      }
+
+      &__floating_card {
+        width: 40%;
+        position: absolute;
+        top: -800%;
+        left: 38%;
+        z-index: 99999;
+      }
 
       &__line {
         background-image: linear-gradient(to right, rgba(255,255,255,0) 50%, white 50%);
@@ -102,5 +139,5 @@
 }
 
 .actions_card {
-  width: 6.5vw;
+  width: 6.2vw;
 }

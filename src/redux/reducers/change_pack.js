@@ -4,7 +4,9 @@ const initialState = {
     cost: 0,
     name: "",
     _id: "",
-    country: ""
+    country: "",
+    nameIsValid: false,
+    costIsValid: false
 };
 
 export default (state = initialState, {type, payload}) => {
@@ -38,6 +40,16 @@ export default (state = initialState, {type, payload}) => {
             return  {
                 ...state,
                 country: payload
+            };
+        case "CHANGE_PACK:SET_NAME_IS_VALID":
+            return  {
+                ...state,
+                nameIsValid: payload
+            };
+        case "CHANGE_PACK:SET_COST_IS_VALID":
+            return  {
+                ...state,
+                costIsValid: payload
             };
         case "CHANGE_PACK:RESET_STATE":
             return  {

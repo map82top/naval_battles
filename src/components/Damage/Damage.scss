@@ -1,0 +1,23 @@
+.damage {
+  position: relative;
+  width: 75%;
+  height: auto;
+
+  &__image {
+    width: inherit;
+    height: inherit;
+  }
+
+  &__value {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    position: absolute;
+    width: 100%;
+    top: 24%;
+    left: 29%;
+    text-shadow: white 0 0 0.8vh;
+    font-size: 200%;
+    color: black;
+    font-weight: 700;
+    z-index: 10;
+  }
+}

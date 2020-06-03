@@ -24,7 +24,7 @@ export default withFormik ({
                     type: 'success',
                 });
 
-               props.history.push('/home');
+               props.history.replace('/home');
 
                 setSubmitting(false);
             })

@@ -1,19 +1,15 @@
 import React, {useState} from "react";
 import "./PacksContainer.scss";
 import { Pack } from "components";
-import { useHistory } from "react-router-dom";
 import {Modal} from "antd";
 import { Glass, Button } from "components";
 import { imageApi  } from "utils/api"
 import { Link } from "react-router-dom";
+import {EDIT, SELECT, EMPTY} from "../Pack";
 
-const PacksContainer = ( { isSelect, name, description, packs } ) => {
-    const history = useHistory();
+
+const PacksContainer = ( { isSelect, name, description, packs, history } ) => {
     const [visible, setVisible] = useState(false);
-
-    const onChoose = () => {
-        history.push("/wait");
-    }
 
     const showModal = () => {
         setVisible(true);
@@ -32,26 +28,20 @@ const PacksContainer = ( { isSelect, name, description, packs } ) => {
             <div className="pack_container__content">
                 { packs && packs.map(pack => {
                     return (
-                        <Link
-                            to={isSelect ? {
-                                pathname: "/wait"
-                            } : {
-                                pathname: "/create_pack",
-                                state: pack
-                            }}
-                        >
                             <Pack
                                 pack={pack}
                                 key={pack._id}
-                                onClick={onChoose}
+                                type={isSelect ? SELECT : EDIT}
+                                history={history}
                             />
-                        </Link>
                      )
                 })}
                 { isSelect ? ('') : (
                     <Pack
                         key={"pack_empty"}
                         onClick={showModal}
+                        type={EMPTY}
+                        history={history}
                     />
                 )}
             </div>

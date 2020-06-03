@@ -3,6 +3,12 @@
   display: flex;
   flex-direction: column;
 
+  &__info {
+    position: absolute;
+    left: 2vw;
+    top: 3vh
+  }
+
   &__top {
     display: flex;
     flex-direction: row;;

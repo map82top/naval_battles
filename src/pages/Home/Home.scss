@@ -1,6 +1,13 @@
 .home {
   height: inherit;
 
+  &__info {
+    position: absolute;
+
+    left: 3vw;
+    top: 2vh;
+  }
+
   &__top {
     display: flex;
     flex-direction: row;;

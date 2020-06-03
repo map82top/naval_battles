@@ -1,6 +1,6 @@
 import React from "react";
 import { Route } from "react-router-dom";
-import {LoginForm, RegistrationForm, Background} from "components";
+import {LoginForm, RegistrationForm, Background, Info} from "components";
 import "./Auth.scss"
 import { imageApi } from "utils/api";
 
@@ -10,7 +10,13 @@ const Index = () => {
           image={imageApi.getImage("login_background.jpeg")}
           className="auth"
       >
-          <Route exact  path="/signin" component={LoginForm}/>
+          <Info
+              className="auth__content__info"
+              title="Об игре"
+              text="Naval Battles - это карточная походовая онлайн игра на 2 человек. <br> Игра основанна на одноименной настольной карточной игре
+                        <br>Если ты увлекаешься историем военного-морского флота, морскими сражениями, присоединяйся!"
+          />
+          <Route exact path={["/signin", "/"]} component={LoginForm}/>
           <Route exact path="/signup" component={RegistrationForm} />
       </Background>
 

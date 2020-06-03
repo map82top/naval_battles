@@ -1,0 +1,11 @@
+.not_draggable_card {
+  width: 15vw;
+  height: auto;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &__image {
+    width: inherit;
+    height: inherit;
+  }
+}

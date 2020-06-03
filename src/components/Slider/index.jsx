@@ -3,20 +3,13 @@ import "./Slider.scss";
 import cn from "classnames";
 import CaretLeftOutlined from "@ant-design/icons/lib/icons/CaretLeftOutlined";
 import CaretRightOutlined from "@ant-design/icons/lib/icons/CaretRightOutlined";
-import { Card, DropList } from "components";
+import { DropList } from "components";
 
-const Slider = ({cards, className, droppableId, showBorder}) => {
+const Slider = ({className, droppableId, showBorder, cardClassName, stateName, collectionName}) => {
     const wheelElement = useRef(null);
-    const [rightBtnActive, setRightActive] = useState(cards.length && cards.length > 0);
+    const [rightBtnActive, setRightActive] = useState(false);
     const [leftBtnActive, setLeftActive] = useState(false);
     const scrollStep = 800;
-
-    const CardsList = React.memo(function CardsList({ cards }) {
-        return cards ? cards.map((card, index) => (
-            <Card card={card} index={index} key={card.id} />
-        )) : '';
-    });
-
 
     const handlerScroll = e => {
         wheelElement.current && wheelElement.current.scrollBy(e.deltaY , 0);
@@ -66,9 +59,11 @@ const Slider = ({cards, className, droppableId, showBorder}) => {
             <DropList
                 droppableId={droppableId}
                 showBorder={showBorder}
-                cards={cards}
                 handlerScroll={handlerScroll}
                 wheelElement={wheelElement}
+                cardClassName={cardClassName}
+                stateName={stateName}
+                collectionName={collectionName}
             />
             <CaretRightOutlined
                 className={ cn("slider__button", {"slider__button--active": rightBtnActive}) }

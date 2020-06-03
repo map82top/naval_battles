@@ -1,16 +1,13 @@
-import React, {useRef, useState} from "react";
+import React, { useState} from "react";
 import "./Card.scss";
 import cn from "classnames";
 import { Modal } from "antd";
 import {Draggable} from "react-beautiful-dnd";
 import { imageApi} from "utils/api";
-import composeRefs from "@seznam/compose-react-refs/composeRefs";
+import {Damage} from "../index";
 
-const Card = ({ className, card, index, onWheel, style, id, refsOnCards}) => {
+const Card = ({ className, card, index, onWheel, style, id, color}) => {
     const [visible, setVisible] = useState(false);
-    const [focusTimeout, setFocusTimeout] = useState(undefined);
-    const cardRef =  useRef(null);
-    refsOnCards.push(cardRef)
 
     const showModal = () => {
        setVisible(true);
@@ -20,36 +17,46 @@ const Card = ({ className, card, index, onWheel, style, id, refsOnCards}) => {
         setVisible(false);
     };
 
-    const onMouseOver = e => {
-        setFocusTimeout(setTimeout(showModal, 1000));
-    }
-
-    const onMouseOut = e => {
-        if(focusTimeout !== undefined) {
-            clearTimeout(focusTimeout);
-            setFocusTimeout(undefined);
+    const getStyle = (style, snapshot) => {
+        if (!snapshot.isDropAnimating) {
+            return style;
         }
+        return {
+            ...style,
+            // cannot be 0, but make it super tiny
+            transitionDuration: `0.001s`,
+        };
     }
 
     return (
-        <div className="card_wrapper" style={style} id={id} ref={cardRef}>
-                <Draggable draggableId={card._id} index={index}>
+        <div
+            className="card_wrapper"
+            id={id}
+            style={{ ...style, border: color + " 0.25vh solid" }}
+        >
+                <Draggable draggableId={card.hash ? card.hash : card._id} index={index}>
                     { (provided, snapshot) => (
                         <div
                             ref={provided.innerRef}
-                            className={ cn("card", className) }
+                            className={ cn("card", className, {"card--blocked": card.blocked}) }
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
+                            style={{...getStyle(provided.draggableProps.style, snapshot) }}
                             onWheel={onWheel}
                             onClick={showModal}
                             // onMouseOver={onMouseOver}
                             // onMouseOut={onMouseOut}
                         >
-                                <img src={ imageApi.getImage(card.image) } alt={"image" + Math.random()} className="card__image"/>
+                            <span className={"card__hp"}>{card.hp}</span>
+                            <img src={ imageApi.getImage(card.image) } alt={"image" + Math.random()} className="card__image"/>
+                            <Damage
+                                damage={card.damage}
+                                className="card__damage"
+                                style={{opacity: card.damage ? 1 : 0 }}
+                            />
                         </div>
                     )}
                 </Draggable>
-
             <Modal
                 className="card__modal"
                 visible={visible}
@@ -58,8 +65,9 @@ const Card = ({ className, card, index, onWheel, style, id, refsOnCards}) => {
                 keyboard
                 centered
             >
-                <div onClick={handleCancel}>
-                    <img src={ imageApi.getImage(card.image) } alt={"image" + Math.random()} className="card__modal__image"/>
+                <div onClick={handleCancel} className={"card__modal__content"}>
+                    <span className={"card__modal__content__hp"}>{card.hp}</span>
+                    <img src={ imageApi.getImage(card.image) } alt={"image" + Math.random()} className="card__modal__content__image"/>
                 </div>
             </Modal>
         </div>

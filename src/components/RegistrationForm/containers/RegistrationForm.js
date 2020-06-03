@@ -27,7 +27,8 @@ export default withFormik ({
         store
             .dispatch(userActions.fetchUserRegister(postData))
             .then((response) => {
-                if(response.status === "success") {
+                console.log(response)
+                if(response.data.status === "success") {
                     openNotification({
                         title: 'Отлично',
                         text: response.description ? response.description: 'Аккаунт создан!',
@@ -35,7 +36,7 @@ export default withFormik ({
                         duration: 3
                     });
 
-                } else if(response.status !== "success") {
+                } else if(response.data.status !== "success") {
                     openNotification({
                         title: 'Ошибка',
                         text: 'Возникла серверная ошибка при регистрации. Повторите позже.',
@@ -45,7 +46,7 @@ export default withFormik ({
 
                 }
                 setSubmitting(false);
-                props.history.push('/signin');
+                props.history.replace('/signin');
             })
             .catch((response) => {
                 console.log(response)

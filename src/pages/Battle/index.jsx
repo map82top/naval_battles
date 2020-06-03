@@ -1,178 +1,16 @@
-import React, { useState, useEffect } from "react";
-import {Background, GameStatusPanel, DropList, ActionList} from "components";
-import background from "assets/img/table_background.jpg";
+import React, { useState, useEffect, useRef } from "react";
+import {Background, GameStatusPanel, DropList, ActionList, Slider, NotDraggableCard, Info} from "components";
 import {DragDropContext} from "react-beautiful-dnd";
+import { connect } from "react-redux";
 import "./Battle.scss"
-
-
-import Xarrow from "react-xarrows";
-
-const enemy_hands_actions = [
-    {
-        _id: "1",
-        image: "action_empty.png",
-    },
-    {
-        _id: "2",
-        image: "action_empty.png",
-    },
-    {
-        _id: "3",
-        image: "action_empty.png",
-    },
-    {
-        _id: "4",
-        image: "action_empty.png",
-    },
-    {
-        _id: "5",
-        image: "action_empty.png",
-    },
-]
-const hands_actions = [
-    {
-        _id: "6",
-        image: "action1.png",
-    },
-    {
-        _id: "7",
-        image: "action2.png",
-    },
-    {
-        _id: "8",
-        image: "action3.png",
-    },
-    {
-        _id: "9",
-        image: "action1.png",
-    },
-    {
-        _id: "10",
-        image: "action2.png",
-    },
-]
-const actions = [
-    {
-        _id: "11",
-        image: "action1.png",
-        targetId: "23"
-    },
-    {
-        _id: "12",
-        image: "action2.png",
-    },
-    {
-        _id: "13",
-        image: "action3.png",
-        targetId: "21"
-    }
-]
-const row_1 = [
-    {
-        _id: "14",
-        image: "Aoba.png",
-    },
-    {
-        _id: "15",
-        image: "Hiryu.png",
-    },
-    {
-        _id: "16",
-        image: "Kagero.png",
-    }
-]
-const row_2 = [
-    {
-        _id: "17",
-        image: "Aoba.png",
-    },
-    {
-        _id: "18",
-        image: "Hiryu.png",
-    }
-]
-const row_3 = [
-    {
-        _id: "19",
-        image: "Kagero.png",
-    },
-    {
-        _id: "20",
-        image: "Aoba.png",
-    }
-]
-const enemy_row_1 = [
-    {
-        _id: "21",
-        image: "Hiryu.png",
-    },
-    {
-        _id: "22",
-        image: "Kagero.png",
-    },
-    {
-        _id: "23",
-        image: "Aoba.png",
-    }
-]
-const enemy_row_2 = [
-    {
-        _id: "24",
-        image: "Hiryu.png",
-    },
-    {
-        _id: "25",
-        image: "Kagero.png",
-    }
-]
-const enemy_row_3 = [
-    {
-        _id: "26",
-        image: "Aoba.png",
-    },
-    {
-        _id: "27",
-        image: "Hiryu.png",
-    }
-]
-const enemy_actions = [
-    {
-        _id: "28",
-        image: "action1.png",
-    },
-    {
-        _id: "29",
-        image: "action2.png",
-    },
-    {
-        _id: "30",
-        image: "action3.png",
-    }
-]
-// const arrow_massiv = [
-//     {
-//         start: "11",
-//         end: "22"
-//     },
-//     {
-//         start: "12",
-//         end: "21"
-//     }
-// ]
-
-const move = (source, destination, droppableSource, droppableDestination, refsOnCards) => {
-    const sourceClone = Array.from(source);
-    const destClone = Array.from(destination);
-
-    const [removed] = sourceClone.splice(droppableSource.index, 1);
-    destClone.splice(droppableDestination.index, 0, removed);
-
-    const result = {};
-    result[droppableSource.droppableId] = sourceClone;
-    result[droppableDestination.droppableId] = destClone;
-
-    return result;
-};
+import {battleActions} from "redux/actions";
+import {imageApi} from "utils/api";
+import io from "socket.io-client"
+import Promise from "bluebird"
+import {store} from "redux/store";
+import randomColor from "randomcolor"
+import {openNotification} from "../../utils/helpers";
+import {withRouter} from "react-router-dom";
 
 const isMyShips = (draggableId) => {
     return draggableId === "row_1" || draggableId === "row_2" || draggableId === "row_3";
@@ -182,215 +20,517 @@ const isEnemyShips = (draggableId) => {
     return draggableId === "enemy_row_1" || draggableId === "enemy_row_2" || draggableId === "enemy_row_3";
 }
 
-const XarrowContainer = ({arrows}) => {
-    return arrows ? arrows.map((arrow, index) => (
-        <Xarrow
-            start={arrow.start}
-            end={arrow.end}
-            key={"arrow" + Math.random()}
-        />
-    )) : '';
-}
 
-const Battle = () => {
-    const [handsActions, setHandsActions] = useState(hands_actions);
-    const [enemyOneRowShips, setEnemyOneRowShips] = useState(enemy_row_1);
-    const [myActionsRow, setMyActionsRow] = useState(actions);
-    const [arrow, setArrow] = useState([]);
-    const [refsOnCards, setRefsOnCards] = useState({})
+const Battle = (props) => {
+    const {
+        idUser,
+        idBattle,
+        firstRowShowBorder,
+        secondRowShowBorder,
+        thirdRowShowBorder,
+        firstEnemyRowShowBorder,
+        secondEnemyRowShowBorder,
+        thirdEnemyRowShowBorder,
+        setFloatingCard,
+        setPlacingShips,
+        floatingCard,
+        setShipsOneRow,
+        setShipsTwoRow,
+        setShipsThreeRow,
+        setHandsActions,
+        setActionsRow,
+        setEnemyPlacingShips,
+        setEnemyShipsOneRow,
+        setEnemyShipsTwoRow,
+        setEnemyShipsThreeRow,
+        setEnemyHandsActions,
+        setEnemyActionsRow,
+        setTime,
+        battleStarted,
+        setBattleStarted,
+        clearState,
+        onBeforeDragFromPlacingShipsRow,
+        onBeforeDragFromFirstRow,
+        onBeforeDragFromSecondRow,
+        onBeforeDragFromThirdRow,
+        handleShipCardMove,
+        onBeforeDragFromHandsActions,
+        onAfterDragFromHandsActions,
+        handleActionCardMove,
+        setElementsColors,
+        setMyTurn,
+        myTurn,
+        setDamage,
+        setEnemyPoints,
+        setUserPoints,
+        history,
+        setEndTurnButtonVisible
+    } = props
+
+    const [clientSocket, setSocket] = useState(null)
+    const [showSupportInfo, setShowSupportInfo] = useState(false)
+    const supportInfoRef = useRef(null)
+
+    const setters = {
+        "placing_ships_row": setPlacingShips,
+            "row_1": setShipsOneRow,
+            "row_2": setShipsTwoRow,
+            "row_3": setShipsThreeRow,
+            "hands_actions": setHandsActions,
+            "actions_row": setActionsRow,
+            "enemy_placing_ships_row": setEnemyPlacingShips,
+            "enemy_row_1": setEnemyShipsOneRow,
+            "enemy_row_2": setEnemyShipsTwoRow,
+            "enemy_row_3": setEnemyShipsThreeRow,
+            "enemy_hands_actions": setEnemyHandsActions,
+            "enemy_actions_row": setEnemyActionsRow,
+            "enemy_points": setEnemyPoints,
+            "user_points": setUserPoints,
+    }
 
     useEffect(() => {
-        arrow.push({
-            start: refsOnCards["actions_row"][0],
-            end: refsOnCards["enemy_row_1"][1]
-        });
-        setArrow(arrow)
-    }, [arrow])
+        const socket = io.connect("/battle/" + idBattle)
+        socket.emitAsync = Promise.promisify(socket.emit)
 
-    const onBeforeDragStart = (result) => {
+        socket.on('connect', () => {
+            socket.emit('LOAD_BATTLE', {
+                userId: idUser,
+                battleId: idBattle
+            })
+        })
+
+        socket.on('GAME_SNAPSHOT', snapshot => {
+            for(let row_name in snapshot) {
+                if(snapshot.hasOwnProperty(row_name) && row_name in setters) {
+                    setters[row_name](snapshot[row_name])
+                }
+            }
+        })
+
+        socket.on('ALLOW_MOVE_SHIP_CARD', ({from, to}) => {
+            setters[from.name](from.state)
+            setters[to.name](to.state)
+        })
+
+        socket.on('TIME', time => {
+            setTimeout(() => {
+                setTime(time)
+            }, 0)
+        })
+
+        socket.on('PLACING_START', () => {
+            runSupportInfo("ПОДГОТОВКА К СРАЖЕНИЮ",1500,
+                () => { runSupportInfo("РАСПОЛОЖИТЕ КАРТЫ КОРАБЛЕЙ НА ИГРОВОМ ПОЛЕ",2500) }
+                )
+        })
+
+        socket.on('START_BATTLE', () => {
+            setBattleStarted(true)
+            setEndTurnButtonVisible(true)
+            runSupportInfo("СРАЖЕНИЕ НАЧАЛОСЬ",1500)
+        })
+
+        socket.on('YOUR_TURN', () => {
+            setShowSupportInfo(false)
+            setMyTurn(true)
+
+            const battleState = store.getState().battle
+            const colors = Object.assign({}, battleState.elements_colors)
+            for(let ship of battleState["row_1"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            for(let ship of battleState["row_2"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            for(let ship of battleState["row_3"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            for(let ship of battleState["row_3"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            setElementsColors(colors)
+
+            runSupportInfo( "ВАШ ХОД",1500)
+        })
+
+        socket.on('ENEMY_TURN', () => {
+            setShowSupportInfo(false)
+            setMyTurn(false)
+
+            const battleState = store.getState().battle
+            const colors = Object.assign({}, battleState.elements_colors)
+            for(let ship of battleState["enemy_row_1"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            for(let ship of battleState["enemy_row_2"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }
+            }
+
+            for(let ship of battleState["enemy_row_3"]) {
+                if(ship.hash in colors) {
+                    delete colors[ship.hash]
+                }}
+
+
+            setElementsColors(colors)
+            runSupportInfo( "ХОД ПРОТИВНИКА", 1500)
+        })
+
+        socket.on('ALLOW_DEFENCE_CARD', (data) => {
+            const {from, to} = data
+            console.log(data)
+
+            const colors = Object.assign({}, store.getState().battle.elements_colors)
+            setters[from.name](from.state)
+            setters[to.name](to.state)
+
+            if(data.protected) {
+                const hash = store.getState().battle[data.protected.name][data.protected.index].hash
+                let color = colors[hash]
+                if(!color) {
+                    color = randomColor()
+                }
+
+                colors[to.state[to.index].hash] = color
+                colors[hash] = color
+                setElementsColors(colors)
+
+            } else {
+                delete colors[from.state[from.index].hash]
+                delete colors[to.state[to.index].hash]
+                setElementsColors(colors)
+            }
+        })
+
+        socket.on('ALLOW_ATTACK', (data) => {
+            const {action, from, to, enemy_points, user_points, enemy_actions_row, actions_row} = data
+            console.log(data)
+            if(action) {
+                setFloatingCard(action)
+                setDamage(action.damage, to, setters)
+                setTimeout(() => {
+                    setters[from.name](from.state)
+                    setters[to.name](to.state)
+                    setFloatingCard(undefined)
+                }, 1000)
+
+            } else {
+                setters[from.name](from.state)
+                setters[to.name](to.state)
+            }
+
+            if(enemy_points) {
+                setEnemyPoints(enemy_points)
+            }
+
+            if(user_points) {
+                setUserPoints(user_points)
+            }
+
+            if(enemy_actions_row) {
+                setEnemyActionsRow(enemy_actions_row)
+            }
+
+            if(actions_row) {
+                setActionsRow(actions_row)
+            }
+
+        })
+
+        socket.on('YOU_WIN', () => {
+            socket.close()
+            openNotification({
+                title: 'Победа',
+                text: 'Флот противника потоплен',
+                type: 'success',
+            });
+            history.replace('/select_pack')
+        })
+
+        socket.on('YOU_LOSE', () => {
+            socket.close()
+            openNotification({
+                title: 'Поражение',
+                text: 'Вам не удалось потопить флот противника',
+                type: 'error',
+            });
+            history.replace('/select_pack')
+        })
+
+        setSocket(socket)
+
+        return () => {
+            socket.removeListener('ALLOW_MOVE_SHIP_CARD', () => {console.log("unsubscribe from ALLOW_MOVE_CARD")});
+            socket.removeListener('PLACING_SHIPS', () => {console.log("unsubscribe from PLACING_SHIPS")});
+            socket.removeListener('TIME', () => {console.log("unsubscribe from TIME")})
+            clearState()
+        };
+
+    }, [])
+
+    const deleteColorsByDeletedActions = (actions_row, colors) => {
+        const battleState = store.getState().battle
+        if(!colors) {
+            colors = Object.assign({}, battleState.elements_colors)
+        }
+        console.log(colors)
+        const hash_actions = actions_row.map(action => action.hash)
+        for(let hash in colors) {
+            if(!(hash in hash_actions)) {
+                delete colors[hash]
+            }
+        }
+
+        return colors
+    }
+
+    const onChangeTurn = () => {
+        clientSocket.emit('END_TURN', {userId: idUser})
+    }
+
+    const runSupportInfo = (message, timeout, timeoutFunc) => {
+        supportInfoRef.current.innerHTML = message
+        setShowSupportInfo(true)
+        setTimeout(() => {
+            setShowSupportInfo(false)
+            if(supportInfoRef.current !== undefined) {
+                supportInfoRef.current.innerHTML = ''
+            }
+            if(timeoutFunc) {
+                timeoutFunc()
+            }
+        }, timeout)
+    }
+
+    const onDragStart = (result) => {
+        const {
+            draggableId,
+            source
+        } = result
+
+        if(!myTurn && battleStarted) {
+            return
+        }
+
+        if(source.droppableId === "hands_actions") {
+            let elem = document.getElementById(draggableId);
+            elem && elem.classList.add("action_dragging");
+            onBeforeDragFromHandsActions(source)
+        } else if(source.droppableId === "placing_ships_row") {
+            onBeforeDragFromPlacingShipsRow(result)
+        } else if(source.droppableId === "row_1") {
+            onBeforeDragFromFirstRow()
+        } else if(source.droppableId === "row_2") {
+            onBeforeDragFromSecondRow()
+        } else if(source.droppableId === "row_3") {
+            onBeforeDragFromThirdRow()
+        }
+    }
+
+    const onDragEnd = (result) => {
         const {
             draggableId,
             destination,
             source
         } = result
 
-        if(source.droppableId === "hands_actions") {
+        if(!myTurn && battleStarted) {
+            return
+        }
+
+        if(["row_1", "row_2",  "row_3", "placing_ships_row"].includes(source.droppableId)) {
+            handleShipCardMove(result, clientSocket, setters)
+
+        } else if(source.droppableId === "hands_actions") {
             let elem = document.getElementById(draggableId);
-            elem && elem.classList.add("action_dragging");
+            elem && elem.classList.remove("action_dragging");
+
+            handleActionCardMove(result, clientSocket, setters)
         }
     }
-
-    const onDragFromHandsActions = ({draggableId, destination, source}) => {
-        if(isEnemyShips(destination.droppableId)) {
-            if(destination.droppableId === "enemy_row_1") {
-                //change target drop list
-                destination.droppableId = "actions_row"
-                destination.index = myActionsRow.length + 1;
-
-                const result = move(
-                    handsActions,
-                    myActionsRow,
-                    source,
-                    destination
-                );
-
-                console.log(refsOnCards[source.droppableId])
-                const [removed] = refsOnCards[source.droppableId].splice(source.index, 1);
-                console.log(refsOnCards[source.droppableId])
-                console.log(refsOnCards[destination.droppableId])
-                refsOnCards[destination.droppableId].splice(destination.index, 0, removed);
-                console.log(refsOnCards[destination.droppableId])
-                console.log(refsOnCards)
-
-                setRefsOnCards(refsOnCards)
-                setMyActionsRow(result.actions_row);
-                setHandsActions(result.hands_actions);
-
-                console.log(refsOnCards)
-                console.log(source.index)
-                console.log(destination.index)
-                console.log(refsOnCards[source.droppableId][source.index])
-                console.log(refsOnCards[destination.droppableId][destination.index - 1])
-                arrow.push({
-                    start: refsOnCards[source.droppableId][source.index],
-                    end: refsOnCards[destination.droppableId][destination.index - 1]
-                });
-                setArrow(arrow);
-               return;
-            }
-        }
-
-        let elem = document.getElementById(draggableId);
-        elem && elem.classList.remove("action_dragging");
-    }
-
-
-    const onDragEnd = (result) => {
-        const {
-            destination,
-            source
-        } = result
-
-        if (!destination) {
-            return;
-        }
-
-        if(source.droppableId === "hands_actions") {
-            onDragFromHandsActions(result);
-        }
-    }
-    console.log(refsOnCards);
-    console.log(arrow)
 
     return (
         <Background
             className="battle"
-            image={background}
+            image={imageApi.getImage("table_background.jpg")}
         >
-            <DragDropContext onBeforeDragStart={onBeforeDragStart} onDragEnd={onDragEnd}>
+            <Info
+                className="battle__info"
+                timeout={50000}
+                title="Игровое поле"
+                text="<b>В левой части игрового поля</b> находятся ваши корабли и корабли противника расположенные в 3 линии
+                <br><b>В правой части игрового поля</b> находятся действия защиты активные в данный момент.
+                Также справа находится <b>панель состояния игры с счетчиками заработанных очков</b> для вас и противника и таймером, показывающим время до окончания хода
+                <br><b>На 1 линии</b> располагаются корабли ведущие огонь из орудий малого калибра
+                <br><b>На 2 линии</b> располагаются корабли ведущие огонь из орудий среднего и крупного калибра
+                <br><b>На 3 линии за пределами досягаемости артиллерийского огня</b> распологаются авианосцы, которые атакуют
+                корабли противника с воздуха
+                <br><b>Перед началом боя необходимо расположить карточки кораблей</b> на 3 линиях. Если игрок за указанное время не расположит все свои карточки
+                на игровом поле, то они будут размещены на игровом поле в случайном порядке
+                <br><b>Карточки действий бывают 2 типов</b> - <b>для ататки</b> и <b>для защиты</b>
+                <br><b>Атакующие действия</b> применяются применяются <b>на кораблях противника</b> и используются сразу же после перетаскивания на карточку корабля
+                <br><b>Действия защиты</b> применются <b>на кораблях игрока</b> и остаются ативными до начала следующего хода игрока.
+                После использования, окантовки карточки защиты и карточки корабля, на которой была применена эта карточка защиты, окрашиваются в одинаковый цвет.
+                <br><b>Цель игры</b> - быстрее противника уничножить корабли на общую стоимость 20 и более очков"
+
+            />
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="battle__game_field">
                         <div className="battle__game_field__border">
-                            <div className="battle__game_field__border__line">''</div>
+                            <div className="battle__game_field__border__line">
+                                ''
+                            </div>
+                            <div
+                                className="battle__game_field__border__support_info"
+                                style={{opacity: runSupportInfo ? 1 : 0 }}
+                                ref={supportInfoRef}
+                            />
+                            {
+                                floatingCard ? (
+                                    <NotDraggableCard
+                                        card={floatingCard}
+                                        className="battle__game_field__border__floating_card"
+                                    />) : ('')
+                            }
+
                         </div>
                         <ActionList
                             className="battle__game_field__enemy_hands_actions"
-                            droppableId={"enemy_hands_actions"}
-                            showBorder={true}
-                            cards={enemy_hands_actions}
-                            refsOnCards={refsOnCards}
-                            // cardClassName="drop_card"
+                            droppableId="enemy_hands_actions"
+                            stateName="battle"
+                            collectionName="enemy_hands_actions"
+                            cardClassName="drop_card"
                         />
                         <div className="battle__game_field__ships_enemy battle__game_field__ships">
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="enemy_row_3"
-                                // showBorder={true}
-                                cards={enemy_row_3}
+                                showBorder={thirdEnemyRowShowBorder}
+                                stateName="battle"
+                                collectionName="enemy_row_3"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
+                                showPlaceholder={true}
                             />
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="enemy_row_2"
-                                // showBorder={true}
-                                cards={enemy_row_2}
+                                showBorder={secondEnemyRowShowBorder}
+                                stateName="battle"
+                                collectionName="enemy_row_2"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
+                                showPlaceholder={true}
                             />
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="enemy_row_1"
-                                // showBorder={true}
-                                cards={enemyOneRowShips}
+                                showBorder={firstEnemyRowShowBorder}
+                                stateName="battle"
+                                collectionName="enemy_row_1"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
+                                showPlaceholder={true}
                             />
                         </div>
                         <div className="battle__game_field__ships_my battle__game_field__ships">
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="row_1"
-                                // showBorder={true}
-                                cards={row_1}
+                                showBorder={firstRowShowBorder}
+                                stateName="battle"
+                                collectionName="row_1"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
                             />
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="row_2"
-                                // showBorder={true}
-                                cards={row_2}
+                                showBorder={secondRowShowBorder}
+                                stateName="battle"
+                                collectionName="row_2"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
                             />
                             <DropList
                                 className="battle__game_field__ships__row"
                                 droppableId="row_3"
-                                // showBorder={true}
-                                cards={row_3}
+                                showBorder={thirdRowShowBorder}
+                                stateName="battle"
+                                collectionName="row_3"
                                 cardClassName="ships_card"
-                                refsOnCards={refsOnCards}
                             />
                         </div>
                         <DropList
                             className="battle__game_field__actions_enemy"
                             droppableId="enemy_actions_row"
-                            // showBorder={true}
-                            cards={enemy_actions}
+                            stateName="battle"
+                            collectionName="enemy_actions_row"
                             cardClassName="actions_card"
-                            refsOnCards={refsOnCards}
                         />
 
                         <DropList
                             className="battle__game_field__actions_my"
                             droppableId="actions_row"
-                            // showBorder={true}
-                            cards={myActionsRow}
+                            stateName="battle"
+                            collectionName="actions_row"
                             cardClassName="actions_card"
-                            refsOnCards={refsOnCards}
                         />
 
-                        <ActionList
-                            className="battle__game_field__hands_actions"
-                            droppableId={"hands_actions"}
-                            // showBorder={true}
-                            cards={handsActions}
-                            refsOnCards={refsOnCards}
-                            // cards={all_cards}
-                            // cardClassName="drop_card"
-                        />
+                        {!battleStarted ? (
+                            <Slider
+                                className="battle__game_field__placing_ships"
+                                stateName="battle"
+                                collectionName="placing_ships_row"
+                                droppableId="placing_ships_row"
+                                showBorder={false}
+                                cardClassName="ships_card"
+                            />
+                        ) : (
+                            <ActionList
+                                className="battle__game_field__hands_actions"
+                                droppableId="hands_actions"
+                                stateName="battle"
+                                collectionName="hands_actions"
+                                cardClassName="drop_card"
+                            />
+                        )}
                 </div>
-                <XarrowContainer arrows={arrow}/>
             </DragDropContext>
             <div className="battle__sub_field">
                 <GameStatusPanel
-                    gamer={"ilyaBurov"}
-                    phase={2}
-                    className="panel"
+                    onChangeTurn={onChangeTurn}
                 />
             </div>
         </Background>
     );
 }
-
-export default Battle;
+export default withRouter(connect(
+    ({battle, user}) => ({
+        idBattle: battle.id,
+        idUser: user.data._id,
+        firstRowShowBorder: battle.firstRowShowBorder,
+        secondRowShowBorder: battle.secondRowShowBorder,
+        thirdRowShowBorder: battle.thirdRowShowBorder,
+        firstEnemyRowShowBorder: battle.firstEnemyRowShowBorder,
+        secondEnemyRowShowBorder: battle.secondEnemyRowShowBorder,
+        thirdEnemyRowShowBorder: battle.thirdEnemyRowShowBorder,
+        battleStarted: battle.battleStarted,
+        floatingCard: battle.floatingCard,
+        myTurn: battle.myTurn,
+        arrows: battle.arrows
+    }),
+    battleActions
+)(Battle))
